@@ -10,10 +10,10 @@ import numpy
 USO_csv = pd.read_csv('data/USO_features.csv')
 file = open('data/uso_ids_and_conditions_new_new.json')  # read in json dictionary of index list for id and condition
 uso_ids_and_conditions = json.load(file)
-eeg_data_path = pathlib.Path('C:/EEG/USO/data')
+eeg_data_path = pathlib.Path('C:/EEG/pre-processing/data')
 ids = listdir(eeg_data_path)
 print('reading in epoch data')
-epoch_data = [mne.read_epochs('C:/EEG/USO/data/' + i + '/epochs/' + i + '-epo.fif') for i in ids]
+epoch_data = [mne.read_epochs('C:/EEG/pre-processing/data/' + i + '/epochs/' + i + '-epo.fif') for i in ids]
 print('finished reading in epoch data')
 
 
@@ -113,4 +113,20 @@ combined_evokeds_final = mne.combine_evoked(combined_evokeds, weights='equal')
 combined_evokeds_final.plot_joint()
 
 
-evokeds.data = np.roll
+shifted_evokeds_cond_1 = mne.read_evokeds('C:/USO Analysis/evoked/time_shifted_by_onset_delay/time_shifted_by_onset_delay_cond_1-ave.fif')
+shifted_evokeds_cond_2 = mne.read_evokeds('C:/USO Analysis/evoked/time_shifted_by_onset_delay/time_shifted_by_onset_delay_cond_2-ave.fif')
+shifted_evokeds_cond_3 = mne.read_evokeds('C:/USO Analysis/evoked/time_shifted_by_onset_delay/time_shifted_by_onset_delay_cond_3-ave.fif')
+shifted_evokeds_cond_4 = mne.read_evokeds('C:/USO Analysis/evoked/time_shifted_by_onset_delay/time_shifted_by_onset_delay_cond_4-ave.fif')
+shifted_evokeds_cond_5 = mne.read_evokeds('C:/USO Analysis/evoked/time_shifted_by_onset_delay/time_shifted_by_onset_delay_cond_5-ave.fif')
+
+# create dictionary sorted by condition
+shifted_evokeds = {'USO/1': shifted_evokeds_cond_1,
+                   'USO/2': shifted_evokeds_cond_2,
+                   'USO/3': shifted_evokeds_cond_3,
+                   'USO/4': shifted_evokeds_cond_4,
+                   'USO/5': shifted_evokeds_cond_5}
+
+for idx, participant in enumerate(uso_ids_and_conditions):
+    mne.viz.plot_compare_evokeds([shifted_evokeds[condition][idx] for condition in shifted_evokeds], ci=False, title=participant,
+                                 legend='lower left', picks='FCz')
+
